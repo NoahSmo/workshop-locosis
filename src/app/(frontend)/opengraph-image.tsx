@@ -5,6 +5,9 @@ export const alt = 'Atelier Locosis — Créations de costumes'
 export const size = { width: 1200, height: 630 }
 export const contentType = 'image/png'
 
+// Lit les réglages en base : rendu à la demande, pas au build (pas de DB dans le build Docker).
+export const dynamic = 'force-dynamic'
+
 export default async function OpengraphImage() {
   const s = await getSettings()
   const name = s.brandName.replace(/^atelier\s+/i, '') || s.brandName
