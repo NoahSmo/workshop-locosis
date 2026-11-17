@@ -1,0 +1,61 @@
+# Prod : docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+# Admin : docker compose -f docker-compose.prod.yml --env-file .env.prod run --rm -e ADMIN_EMAIL=… migrate pnpm seed:admin
+name: locosis
+
+services:
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      DATABASE_URL: postgres://locosis:${POSTGRES_PASSWORD}@postgres:5432/locosis
+    depends_on:
+      postgres: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    volumes:
+      - media:/app/media
+
+  # Applique les migrations Payload avant chaque démarrage de l'app.
+  migrate:
+    build: { context: ., target: tools }
+    command: pnpm exec payload migrate
+    env_file: .env.prod
+    environment:
+      DATABASE_URL: postgres://locosis:${POSTGRES_PASSWORD}@postgres:5432/locosis
+    depends_on:
+      postgres: { condition: service_healthy }
+
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: locosis
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: locosis
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backups:/backups
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U locosis']
+      interval: 5s
+      retries: 10
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports: ['80:80', '443:443']
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN}
+    depends_on: [app]
+
+volumes:
+  pgdata:
+  media:
+  caddy_data:

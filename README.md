@@ -1,67 +1,71 @@
-# Payload Blank Template
+# Atelier Locosis
 
-This template comes configured with the bare minimum to get started on anything you need.
+Site vitrine + back-office (CRM) — Next.js + Payload CMS + PostgreSQL.
 
-## Quick start
+## Dev local
 
-This template can be deployed directly from our Cloud hosting and it will setup MongoDB and cloud S3 object storage for media.
+```sh
+cp .env.example .env
+docker compose up -d          # Postgres (5433) + Mailpit (http://localhost:8025)
+pnpm install
+pnpm payload migrate
+pnpm seed                     # données de démo + admin admin@locosis.local / changeme-locosis
+pnpm dev                      # http://localhost:3000 — admin : /admin
+```
 
-## Quick Start - local setup
+Après modification d'une collection : `pnpm payload migrate:create <nom>` puis commit du fichier généré dans `src/migrations/`.
 
-To spin up this template locally, follow these steps:
+## Production (VPS)
 
-### Clone
+Prérequis : Docker + plugin compose, ports 80/443 ouverts, DNS `A` du domaine (et `www`) vers l'IP du VPS.
+Caddy gère HTTPS (Let's Encrypt) automatiquement.
 
-After you click the `Deploy` button above, you'll want to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
+### Première mise en ligne
 
-### Development
+```sh
+git clone <repo> locosis && cd locosis
+cp .env.prod.example .env.prod
+# Remplir .env.prod — secrets : openssl rand -hex 32
+alias dc='docker compose -f docker-compose.prod.yml --env-file .env.prod'
+dc up -d --build              # migrations appliquées automatiquement avant l'app
+```
 
-1. First [clone the repo](#clone) if you have not done so already
-2. `cd my-project && cp .env.example .env` to copy the example environment variables. You'll need to add the `MONGODB_URL` from your Cloud project to your `.env` if you want to use S3 storage and the MongoDB database that was created for you.
+### Accès admin au CRM
 
-3. `pnpm install && pnpm dev` to install dependencies and start the dev server
-4. open `http://localhost:3000` to open the app in your browser
+Un compte par personne. Mot de passe généré et affiché une seule fois :
 
-That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
+```sh
+dc run --rm -e ADMIN_EMAIL=frere@exemple.fr -e ADMIN_NAME="Prénom" migrate pnpm seed:admin
+dc run --rm -e ADMIN_EMAIL=moi@exemple.fr   -e ADMIN_NAME="Noah"   migrate pnpm seed:admin
+```
 
-#### Docker (Optional)
+- Compte existant → ignoré. Réinitialiser : ajouter `-e ADMIN_RESET=1`.
+- Mot de passe imposé : `-e ADMIN_PASSWORD=…` (12 caractères min.). Évite l'historique shell : préférer la génération.
+- Ensuite chacun change son mot de passe dans `/admin` → compte. « Mot de passe oublié » marche si le SMTP est configuré.
+- Données de démo (optionnel, premier lancement seulement) : `dc run --rm migrate pnpm seed`.
 
-If you prefer to use Docker for local development instead of a local MongoDB instance, the provided docker-compose.yml file can be used.
+### Mise à jour
 
-To do so, follow these steps:
+```sh
+git pull && dc up -d --build
+```
 
-- Modify the `MONGODB_URL` in your `.env` file to `mongodb://127.0.0.1/<dbname>`
-- Modify the `docker-compose.yml` file's `MONGODB_URL` to match the above `<dbname>`
-- Run `docker-compose up` to start the database, optionally pass `-d` to run in the background.
+### Sauvegardes
 
-## How it works
+`deploy/backup.sh` : dump Postgres + archive des photos dans `backups/`, rotation 14 jours.
 
-The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:
+```sh
+crontab -e
+0 3 * * * /chemin/vers/locosis/deploy/backup.sh
+```
 
-### Collections
+Restauration base : `gunzip -c backups/db-AAAA-MM-JJ.sql.gz | dc exec -T postgres psql -U locosis locosis`
+Copier `backups/` hors du VPS de temps en temps (rsync, rclone…).
 
-See the [Collections](https://payloadcms.com/docs/configuration/collections) docs for details on how to extend this functionality.
+### Utile
 
-- #### Users (Authentication)
-
-  Users are auth-enabled collections that have access to the admin panel.
-
-  For additional help, see the official [Auth Example](https://github.com/payloadcms/payload/tree/3.x/examples/auth) or the [Authentication](https://payloadcms.com/docs/authentication/overview#authentication-overview) docs.
-
-- #### Media
-
-  This is the uploads enabled collection. It features pre-configured sizes, focal point and manual resizing to help you manage your pictures.
-
-### Docker
-
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
-
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
-
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
-
-## Questions
-
-If you have any issues or questions, reach out to us on [Discord](https://discord.com/invite/payload) or start a [GitHub discussion](https://github.com/payloadcms/payload/discussions).
+```sh
+dc logs -f app                # logs
+dc ps                         # état
+dc exec postgres psql -U locosis locosis
+```
