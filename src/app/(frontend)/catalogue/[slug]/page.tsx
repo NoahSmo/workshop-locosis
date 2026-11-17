@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getPayloadClient, getSettings, mediaUrl } from '@/lib/data'
 import { Flourish, Illustration, LilySpray, Panel } from '@/components/ornaments'
+import { availability } from '@/lib/availability'
 
 const CONDITION: Record<string, string> = { excellent: 'Excellent', bon: 'Bon', use: 'Usé (patiné)' }
 
@@ -23,6 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const c = await load((await params).slug)
   if (!c) notFound()
+  const a = availability(c.available, c.availableFrom)
   const photos = (Array.isArray(c.photos) ? c.photos : []).map((p) => mediaUrl(p, 'large')).filter(Boolean) as string[]
   const rows = ([
     ['Époque', c.era],
@@ -30,7 +32,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
     ['État', c.condition && CONDITION[c.condition]],
     ['Prix par jour', c.pricePerDay != null && `${c.pricePerDay} €`],
     ['Caution', c.deposit != null && `${c.deposit} €`],
-    ['Disponibilité', c.available ? 'Disponible' : 'Déjà loué'],
+    ['Disponibilité', a.label],
   ] as const).filter(([, v]) => v)
   return (
     <Panel className="panel--top page">
@@ -51,7 +53,7 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           <dl className="specs">
             {rows.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
           </dl>
-          <p><Link href="/commande?type=location" className="btn">Demander la location</Link></p>
+          <p><Link href="/commande?type=location" className="btn">{a.free ? 'Demander la location' : 'Réserver pour plus tard'}</Link></p>
         </div>
       </div>
       {photos.length > 1 && (

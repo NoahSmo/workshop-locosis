@@ -52,13 +52,13 @@ export async function POST(req: Request) {
     collection: 'inquiries',
     data: {
       client: client.id,
+      clientEmail: email,
       type: d.type,
       subject: d.subject,
       description: d.description,
       deadline: d.deadline ? new Date(d.deadline).toISOString() : undefined,
       budget: d.budget || undefined,
       references: refIds,
-      consent: true,
       status: 'new',
     },
   })
@@ -68,6 +68,7 @@ export async function POST(req: Request) {
   try {
     await payload.sendEmail({
       to: process.env.NOTIFY_EMAIL,
+      replyTo: email,
       subject: `Nouvelle demande : ${d.subject}`,
       html: `<p><b>${esc(d.name)}</b> (${esc(email)}) — ${esc(d.type)}</p><p>${esc(d.description).replace(/\n/g, '<br>')}</p><p><a href="${site}/admin/collections/inquiries">Ouvrir dans le CRM</a></p>`,
     })

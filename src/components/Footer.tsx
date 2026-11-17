@@ -1,10 +1,9 @@
 import Link from 'next/link'
 import type { SiteSetting } from '@/payload-types'
-import { Crest, Flourish, LilySpray, SocialIcon } from './ornaments'
-import { Logo } from './Logo'
+import { Flourish, LilySpray, SocialIcon } from './ornaments'
+import { Logo, Monogram } from './Logo'
 
 export function Footer({ s }: { s: SiteSetting }) {
-  const letter = (s.brandName.replace(/^atelier\s+/i, '')[0] || 'L').toUpperCase()
   return (
     <footer className="footer">
       <LilySpray className="footer__lily footer__lily--l" />
@@ -20,7 +19,7 @@ export function Footer({ s }: { s: SiteSetting }) {
         </form>
       </div>
       <div className="footer__bottom">
-        <Logo brand={s.brandName} className="logo--light" />
+        <Logo brand={s.brandName} className="logo--light" mark={false} />
         <div className="footer__center">
           {!!s.socials?.length && (
             <ul className="footer__socials">
@@ -35,7 +34,7 @@ export function Footer({ s }: { s: SiteSetting }) {
           </p>
           <p className="footer__legal">© {new Date().getFullYear()} {s.brandName}. <Link href="/mentions-legales">Mentions légales</Link></p>
         </div>
-        <Crest letter={letter} className="footer__crest" />
+        <Monogram className="footer__crest" size={140} />
       </div>
     </footer>
   )

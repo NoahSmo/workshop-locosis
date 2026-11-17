@@ -1,5 +1,5 @@
 /**
- * Ornements art nouveau dessinés en SVG : lys, volutes, médaillons, blason.
+ * Ornements art nouveau dessinés en SVG : lys, volutes, médaillons, icônes.
  * Couleurs pilotées par les classes CSS (.o-*), voir styles.css.
  */
 import type { ReactNode } from 'react'
@@ -167,26 +167,6 @@ export function Illustration({ className = '' }: { className?: string }) {
   )
 }
 
-/** Blason à initiale, dans un cartouche ovale. */
-export function Crest({ letter = 'L', className = '' }: { letter?: string; className?: string }) {
-  return (
-    <svg className={`crest ${className}`} viewBox="0 0 140 170" aria-hidden="true">
-      <ellipse cx="70" cy="96" rx="40" ry="52" className="o-line" />
-      <ellipse cx="70" cy="96" rx="34" ry="46" className="o-line o-thin" />
-      <path d="M30 96c-22-4-28-26-14-34 10-6 20 4 14 12M110 96c22-4 28-26 14-34-10-6-20 4-14 12" className="o-line" />
-      <path d="M32 120c-20 6-24 26-10 32 10 4 18-8 10-14M108 120c20 6 24 26 10 32-10 4-18-8-10-14" className="o-line" />
-      <path d="M22 70c-6-10 0-22 10-22M118 70c6-10 0-22-10-22" className="o-line o-thin" />
-      <path d="M70 148v16M60 158h20" className="o-line" />
-      <Bloom x={70} y={36} s={0.42} />
-      <Leaf x={66} y={50} r={-62} s={0.32} />
-      <Leaf x={74} y={50} r={62} s={0.32} />
-      <text x="70" y="116" textAnchor="middle" className="o-letter">
-        {letter}
-      </text>
-    </svg>
-  )
-}
-
 /** Ligne en coup de fouet qui part du haut du cadre et s'enroule autour du médaillon. viewBox 0 0 500 500. */
 export function MedallionDecor() {
   return (
@@ -260,15 +240,67 @@ export function Teardrop() {
   )
 }
 
-/* Icônes au trait (48×48) */
+/* Icônes au trait, grille 48×48, marge de 6, trait unique (.o-icon) ; .o-icon-dot = point plein. */
 const ICONS: Record<string, ReactNode> = {
-  croquis: <path d="M10 38l3-11L33 7l8 8-20 20zM13 27l8 8M29 11l8 8M8 42h16" />,
-  ciseaux: <><circle cx="14" cy="36" r="5" /><circle cx="30" cy="38" r="5" /><path d="M17 32L38 8M27 34L12 9" /></>,
-  aiguille: <><path d="M10 40L38 10" /><ellipse cx="36" cy="12" rx="1.6" ry="3.2" transform="rotate(45 36 12)" /><path d="M36 12c6 8-4 14-12 12s-18 4-14 14" /></>,
-  cintre: <><path d="M24 12a4 4 0 1 1 4 4c-2 0-4 1-4 4M24 20L6 32h36z" /><path d="M14 32l-4 12h28l-4-12" /></>,
-  bobine: <><path d="M12 8h24M12 40h24M16 8v32M32 8v32" /><path d="M16 14l16 6M16 20l16 6M16 26l16 6M16 32l16 6" /></>,
-  mesure: <><circle cx="20" cy="22" r="13" /><circle cx="20" cy="22" r="4" /><path d="M33 22h10v10H20M26 32v-4M31 32v-4M36 32v-4" /></>,
-  tissu: <><path d="M8 14c8-6 24-6 32 0v20c-8-6-24-6-32 0z" /><path d="M8 34c8 6 24 6 32 0" /><path d="M16 12v24M24 11v26M32 12v24" /></>,
+  // Crayon posé en diagonale, qui trace une ligne.
+  croquis: (
+    <>
+      <g transform="rotate(-45 24 24)">
+        <path d="M36 20H14l-6 4 6 4h22zM14 20v8M31 20v8M36 20h1.5a2.5 2.5 0 0 1 2.5 2.5v3a2.5 2.5 0 0 1-2.5 2.5H36" />
+      </g>
+      <path d="M12 39c4 2.5 7-1.5 11 0s7 2 12-1" />
+    </>
+  ),
+  // Ciseaux de tailleur ouverts, anneaux en bas.
+  ciseaux: (
+    <>
+      <circle cx="15" cy="36" r="5" />
+      <circle cx="33" cy="36" r="5" />
+      <path d="M18.5 32.4L32 6M29.5 32.4L16 6" />
+      <circle cx="24" cy="21.6" r="1.2" className="o-icon-dot" />
+    </>
+  ),
+  // Aiguille et fil, comme dans le monogramme.
+  aiguille: (
+    <>
+      <path d="M8 40L33.4 12.6a2.6 2.6 0 0 1 3.8 3.6z" />
+      <path d="M34.2 15l1.2-1.3" />
+      <path d="M35.6 13.6c4.4 2.6 5.4 8.6 2.6 13.2-3 4.8-9.8 6.8-15 9.6-2.4 1.3-2.2 3.6.4 3.6" />
+    </>
+  ),
+  // Cintre.
+  cintre: (
+    <>
+      <path d="M20 12.5a4 4 0 1 1 6 3.4c-1.3.8-2 1.6-2 3.1v1.5" />
+      <path d="M24 20.5L7.4 32.3A2 2 0 0 0 8.6 36h30.8a2 2 0 0 0 1.2-3.7z" />
+    </>
+  ),
+  // Bobine de fil, brin libre.
+  bobine: (
+    <>
+      <rect x="10" y="7" width="28" height="5" rx="2.5" />
+      <rect x="10" y="36" width="28" height="5" rx="2.5" />
+      <path d="M15 12v24M33 12v24M15 17l18 4M15 23l18 4M15 29l18 4" />
+      <path d="M33 31c4 0 7 2.5 7.5 5" />
+    </>
+  ),
+  // Mètre ruban déroulé.
+  mesure: (
+    <>
+      <circle cx="19" cy="21" r="12" />
+      <circle cx="19" cy="21" r="3.5" />
+      <path d="M29.4 27H42v6H19M34 27v3M38 27v3" />
+    </>
+  ),
+  // Pile de coupons pliés, piqûre sur chacun.
+  tissu: (
+    <>
+      <rect x="13" y="10" width="22" height="9" rx="2.5" />
+      <rect x="10" y="19" width="28" height="9.5" rx="2.5" />
+      <rect x="7" y="28.5" width="34" height="10" rx="2.5" />
+      <path d="M17 14.5h14M14 23.75h20M11 33.5h26" className="o-icon-stitch" />
+    </>
+  ),
 }
 
 export function Icon({ name, className = '' }: { name: keyof typeof ICONS | string; className?: string }) {
@@ -283,15 +315,15 @@ export function Icon({ name, className = '' }: { name: keyof typeof ICONS | stri
 export function SocialIcon({ label }: { label: string }) {
   const k = label.toLowerCase()
   const d = k.includes('insta')
-    ? <><rect x="8" y="8" width="32" height="32" rx="9" /><circle cx="24" cy="24" r="7.5" /><circle cx="33.5" cy="14.5" r="1.6" /></>
+    ? <><rect x="8" y="8" width="32" height="32" rx="10" /><circle cx="24" cy="24" r="7" /><circle cx="33" cy="15" r="1.6" className="o-icon-dot" /></>
     : k.includes('face')
-      ? <path d="M27 40V26h5l1-6h-6v-4c0-2 1-3 3-3h3V8h-5c-5 0-8 3-8 8v4h-5v6h5v14" />
+      ? <path d="M27 41V25.5h5.2l.8-6H27v-3.6c0-1.8.6-3 3.1-3H34V7.6A40 40 0 0 0 29.4 7.3c-4.6 0-7.4 2.8-7.4 7.8v4.4h-5v6h5V41" />
       : k.includes('tiktok')
-        ? <path d="M26 8v22a6 6 0 1 1-6-6M26 8c1 5 5 9 10 9" />
+        ? <path d="M27 8v20.5a6.5 6.5 0 1 1-6.5-6.5M27 8c.8 5 4.5 8.6 9.5 9" />
         : k.includes('youtube')
-          ? <><rect x="6" y="12" width="36" height="24" rx="7" /><path d="M21 18v12l10-6z" /></>
+          ? <><rect x="6" y="12" width="36" height="24" rx="8" /><path d="M21 19v10l8.5-5z" /></>
           : k.includes('pinterest')
-            ? <><circle cx="24" cy="24" r="16" /><path d="M22 20l-5 22M20 30c6 3 12-1 12-8a8 8 0 0 0-15-3" /></>
+            ? <><circle cx="24" cy="24" r="17" /><path d="M21.5 40.5L25 26.5M23.6 30c1 1.8 3 2.8 5.2 2.8 4.4 0 7.2-4 7.2-8.6C36 18.6 31.6 15 25.5 15 19 15 15 19.4 15 24.4c0 2.5.9 4.4 2.5 5.4" /></>
             : null
   return d ? (
     <svg className="icon icon--social" viewBox="0 0 48 48" role="img" aria-label={label}>

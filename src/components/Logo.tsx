@@ -1,17 +1,21 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
-/** « Atelier Locosis » → grand nom « Locosis », mention « Atelier de costumes ». */
-export function Logo({ brand, className = '' }: { brand: string; className?: string }) {
+/** Monogramme « LC » dans sa couronne de volutes (esquisse du logo, public/logo.png). */
+export function Monogram({ className = '', size = 120, preload = false }: { className?: string; size?: number; preload?: boolean }) {
+  return <Image src="/logo.png" alt="" width={size} height={size} className={`monogram ${className}`} preload={preload} />
+}
+
+/** « Atelier Locosis » → monogramme, grand nom « Locosis », mention « Atelier de costumes ». */
+export function Logo({ brand, className = '', mark = true }: { brand: string; className?: string; mark?: boolean }) {
   const name = brand.replace(/^atelier\s+/i, '') || brand
   return (
     <Link href="/" className={`logo ${className}`} aria-label={`${brand}, accueil`}>
-      <svg className="logo__orn" viewBox="0 0 120 30" aria-hidden="true">
-        <path d="M6 24c18 0 30-4 40-12M114 24c-18 0-30-4-40-12M60 4v22M52 26h16" className="o-line" />
-        <path d="M60 4c-6 6-6 12 0 16 6-4 6-10 0-16z" className="o-gild" />
-        <path d="M46 12c-4-6 2-10 6-6M74 12c4-6-2-10-6-6" className="o-line" />
-      </svg>
-      <span className="logo__name">{name}</span>
-      <span className="logo__sub">Atelier de costumes</span>
+      {mark && <Monogram className="logo__mark" size={88} preload />}
+      <span className="logo__text">
+        <span className="logo__name">{name}</span>
+        <span className="logo__sub">Atelier de costumes</span>
+      </span>
     </Link>
   )
 }

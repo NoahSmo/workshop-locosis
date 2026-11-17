@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { ImageResponse } from 'next/og'
 import { getSettings } from '@/lib/data'
 
@@ -9,8 +11,9 @@ export const contentType = 'image/png'
 export const dynamic = 'force-dynamic'
 
 export default async function OpengraphImage() {
-  const s = await getSettings()
+  const [s, logo] = await Promise.all([getSettings(), readFile(join(process.cwd(), 'public/logo.png'))])
   const name = s.brandName.replace(/^atelier\s+/i, '') || s.brandName
+  const logoSrc = `data:image/png;base64,${logo.toString('base64')}`
 
   return new ImageResponse(
     (
@@ -22,8 +25,8 @@ export default async function OpengraphImage() {
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: '#2a362d',
-          color: '#f3e7cf',
+          background: '#273f2c',
+          color: '#f1e9d2',
           fontFamily: 'serif',
           padding: 48,
         }}
@@ -36,16 +39,19 @@ export default async function OpengraphImage() {
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            border: '3px solid #b0874a',
+            border: '3px solid #a87a42',
             borderRadius: 40,
           }}
         >
-          <div style={{ fontSize: 34, letterSpacing: 10, textTransform: 'uppercase', color: '#d8bb82' }}>
+          <div style={{ display: 'flex', width: 190, height: 190, marginBottom: 18, borderRadius: 999, background: '#f1e9d2', alignItems: 'center', justifyContent: 'center', boxShadow: '0 0 0 2px #ddd08a' }}>
+            <img src={logoSrc} width={170} height={170} alt="" />
+          </div>
+          <div style={{ fontSize: 30, letterSpacing: 10, textTransform: 'uppercase', color: '#ddd08a' }}>
             Atelier de costumes
           </div>
-          <div style={{ fontSize: 150, margin: '16px 0', color: '#fbf5e8' }}>{name}</div>
-          <div style={{ width: 220, height: 3, background: '#b0874a', marginBottom: 28 }} />
-          <div style={{ fontSize: 40, fontStyle: 'italic', color: '#a3b097', textAlign: 'center' }}>
+          <div style={{ fontSize: 110, margin: '4px 0 8px', color: '#fbf7ea' }}>{name}</div>
+          <div style={{ width: 220, height: 3, background: '#a87a42', marginBottom: 22 }} />
+          <div style={{ fontSize: 34, fontStyle: 'italic', color: '#aebb80', textAlign: 'center' }}>
             {s.tagline || 'Costumes sur mesure, cousus à la main.'}
           </div>
         </div>

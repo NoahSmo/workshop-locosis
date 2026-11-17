@@ -1,4 +1,5 @@
 'use client'
+import Link from 'next/link'
 import { useRef, useState, type FormEvent } from 'react'
 
 type Errors = Record<string, string[] | undefined>
@@ -83,10 +84,7 @@ export function InquiryForm({ defaultType = 'commande', defaultEmail }: { defaul
         <span className="hint">3 images maximum, 5 Mo chacune</span>
       </div>
       <input className="hp" name="website" tabIndex={-1} autoComplete="off" aria-hidden="true" />
-      <div className="field">
-        <label className="check"><input type="checkbox" name="consent" required {...aria('consent')} /><span>J'accepte que ces informations servent à répondre à ma demande.</span></label>
-        <FieldError k="consent" msg={err("consent")} />
-      </div>
+      <p className="form__note">Ces informations servent uniquement à répondre à votre demande. <Link href="/mentions-legales#donnees">Vos données</Link></p>
       {globalError && <p className="err" role="alert">{globalError}</p>}
       <div><button className="btn" disabled={state === 'sending'}>{state === 'sending' ? 'Envoi en cours' : 'Envoyer la demande'}</button></div>
     </form>

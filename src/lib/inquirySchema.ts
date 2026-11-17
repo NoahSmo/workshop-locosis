@@ -9,7 +9,6 @@ export const inquirySchema = z.object({
   description: z.string().trim().min(20, 'Décrivez le projet en quelques phrases (20 caractères minimum)').max(5000),
   deadline: z.string().optional().or(z.literal('')),
   budget: z.string().trim().max(80).optional().or(z.literal('')),
-  consent: z.literal('on', { message: 'Cochez la case pour envoyer la demande' }),
   website: z.string().max(0).optional(), // honeypot
 })
 

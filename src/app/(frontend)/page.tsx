@@ -2,7 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getProjects, getSettings, mediaUrl } from '@/lib/data'
 import { ArchCard } from '@/components/ProjectCard'
-import { Crest, Flourish, Icon, Illustration, MedallionDecor, Panel, SideVine, Teardrop } from '@/components/ornaments'
+import { Flourish, Icon, Illustration, MedallionDecor, Panel, SideVine, Teardrop } from '@/components/ornaments'
 
 const CATS: Record<string, string> = { historique: 'Historique', fantasy: 'Fantasy', scene: 'Scène', cosplay: 'Cosplay', autre: 'Autre' }
 
@@ -27,7 +27,6 @@ export default async function HomePage() {
   const about = mediaUrl(s.aboutImage, 'card')
   const latest = [...all].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 3)
   const cats = Object.keys(CATS).filter((k) => all.some((p) => p.category === k))
-  const letter = (s.brandName.replace(/^atelier\s+/i, '')[0] || 'L').toUpperCase()
 
   return (
     <>
@@ -35,7 +34,6 @@ export default async function HomePage() {
         <SideVine className="hero__vine" />
         <div className="hero__grid">
           <div className="hero__title">
-            <Crest letter={letter} className="hero__crest" />
             <h1>Costumes sur mesure, de l'esquisse au dernier point.</h1>
             <Flourish />
           </div>

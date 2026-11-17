@@ -238,6 +238,7 @@ export interface Inquiry {
   id: number;
   status: 'new' | 'contacted' | 'quoted' | 'in_progress' | 'delivered' | 'lost';
   client: number | Client;
+  clientEmail?: string | null;
   type: 'commande' | 'location' | 'retouche' | 'autre';
   subject: string;
   description: string;
@@ -246,7 +247,6 @@ export interface Inquiry {
   references?: (number | Media)[] | null;
   quote?: number | null;
   internalNotes?: string | null;
-  consent?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -278,7 +278,14 @@ export interface CostumeItem {
   name: string;
   slug?: string | null;
   published?: boolean | null;
+  /**
+   * Décochez quand le costume est loué. Dans la liste, un clic sur la pastille bascule Disponible / Loué.
+   */
   available?: boolean | null;
+  /**
+   * Date de retour, affichée sur le site. Une fois passée, le costume apparaît disponible.
+   */
+  availableFrom?: string | null;
   photos: (number | Media)[];
   era?: string | null;
   size?: string | null;
@@ -441,6 +448,7 @@ export interface ProjectsSelect<T extends boolean = true> {
 export interface InquiriesSelect<T extends boolean = true> {
   status?: T;
   client?: T;
+  clientEmail?: T;
   type?: T;
   subject?: T;
   description?: T;
@@ -449,7 +457,6 @@ export interface InquiriesSelect<T extends boolean = true> {
   references?: T;
   quote?: T;
   internalNotes?: T;
-  consent?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -476,6 +483,7 @@ export interface CostumeItemsSelect<T extends boolean = true> {
   slug?: T;
   published?: T;
   available?: T;
+  availableFrom?: T;
   photos?: T;
   era?: T;
   size?: T;

@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionBeforeChangeHook, CollectionConfig } from 'payload'
 import { isAdmin } from '../lib/access'
 
 export const INQUIRY_STATUSES = [
@@ -10,16 +10,25 @@ export const INQUIRY_STATUSES = [
   { label: 'Perdu / refusé', value: 'lost' },
 ]
 
+// Demande saisie depuis l'admin : reprend l'email de la fiche client.
+const fillClientEmail: CollectionBeforeChangeHook = async ({ data, req }) => {
+  if (data.clientEmail || !data.client) return data
+  const id = typeof data.client === 'object' ? data.client.id : data.client
+  const c = await req.payload.findByID({ collection: 'clients', id, depth: 0, req })
+  return { ...data, clientEmail: c.email }
+}
+
 export const Inquiries: CollectionConfig = {
   slug: 'inquiries',
   labels: { singular: 'Demande', plural: 'Demandes' },
   admin: {
     useAsTitle: 'subject',
     group: 'CRM',
-    defaultColumns: ['subject', 'client', 'type', 'status', 'deadline', 'createdAt'],
-    listSearchableFields: ['subject', 'description'],
+    defaultColumns: ['subject', 'client', 'clientEmail', 'type', 'status', 'deadline', 'createdAt'],
+    listSearchableFields: ['subject', 'description', 'clientEmail'],
   },
   defaultSort: '-createdAt',
+  hooks: { beforeChange: [fillClientEmail] },
   // Création publique passe par /api/inquiry (Local API) : pas d'accès REST anonyme.
   access: { read: isAdmin, create: isAdmin, update: isAdmin, delete: isAdmin },
   fields: [
@@ -34,6 +43,7 @@ export const Inquiries: CollectionConfig = {
       admin: { position: 'sidebar' },
     },
     { name: 'client', type: 'relationship', relationTo: 'clients', label: 'Client', required: true, admin: { position: 'sidebar' } },
+    { name: 'clientEmail', type: 'email', label: 'Email du client', admin: { position: 'sidebar' } },
     {
       name: 'type',
       type: 'select',
@@ -53,6 +63,5 @@ export const Inquiries: CollectionConfig = {
     { name: 'references', type: 'upload', relationTo: 'media', hasMany: true, label: "Images d'inspiration" },
     { name: 'quote', type: 'number', label: 'Montant du devis (€)', admin: { position: 'sidebar' } },
     { name: 'internalNotes', type: 'textarea', label: 'Notes internes' },
-    { name: 'consent', type: 'checkbox', label: 'Consentement RGPD donné', defaultValue: false, admin: { readOnly: true, position: 'sidebar' } },
   ],
 }
