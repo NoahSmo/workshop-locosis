@@ -17,8 +17,8 @@ Après modification d'une collection : `pnpm payload migrate:create <nom>` puis 
 
 ## Production (VPS)
 
-Prérequis : Docker + plugin compose, ports 80/443 ouverts, DNS `A` du domaine (et `www`) vers l'IP du VPS.
-Caddy gère HTTPS (Let's Encrypt) automatiquement.
+Prérequis : Docker + plugin compose, DNS `A` du domaine (et `www`) vers l'IP du VPS.
+L'app écoute sur `127.0.0.1:3100` ; le nginx de l'hôte fait le proxy + HTTPS (voir `deploy/nginx.conf`).
 
 ### Première mise en ligne
 
@@ -28,6 +28,15 @@ cp .env.prod.example .env.prod
 # Remplir .env.prod — secrets : openssl rand -hex 32
 alias dc='docker compose -f docker-compose.prod.yml --env-file .env.prod'
 dc up -d --build              # migrations appliquées automatiquement avant l'app
+```
+
+### Nginx + HTTPS
+
+```sh
+sudo cp deploy/nginx.conf /etc/nginx/sites-available/locosis   # remplacer exemple.fr
+sudo ln -s /etc/nginx/sites-available/locosis /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
+sudo certbot --nginx -d exemple.fr -d www.exemple.fr
 ```
 
 ### Accès admin au CRM

@@ -11,6 +11,8 @@ services:
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
     restart: unless-stopped
     env_file: .env.prod
+    # Accessible uniquement depuis le VPS : nginx (hôte) fait le reverse proxy.
+    ports: ['127.0.0.1:3100:3000']
     environment:
       DATABASE_URL: postgres://locosis:${POSTGRES_PASSWORD}@postgres:5432/locosis
     depends_on:
@@ -44,18 +46,7 @@ services:
       interval: 5s
       retries: 10
 
-  caddy:
-    image: caddy:2-alpine
-    restart: unless-stopped
-    ports: ['80:80', '443:443']
-    volumes:
-      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-    environment:
-      SITE_DOMAIN: ${SITE_DOMAIN}
-    depends_on: [app]
 
 volumes:
   pgdata:
   media:
-  caddy_data:
