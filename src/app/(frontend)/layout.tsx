@@ -16,11 +16,14 @@ const site = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings()
+  const title = `${s.brandName} — Créations de costumes`
+  const description = s.tagline || 'Costumes sur mesure, cousus à la main.'
   return {
     metadataBase: new URL(site),
-    title: { default: `${s.brandName} — Créations de costumes`, template: `%s — ${s.brandName}` },
-    description: s.tagline || 'Costumes sur mesure, cousus à la main.',
-    openGraph: { type: 'website', locale: 'fr_FR', siteName: s.brandName },
+    title: { default: title, template: `%s — ${s.brandName}` },
+    description,
+    openGraph: { type: 'website', locale: 'fr_FR', siteName: s.brandName, title, description, url: '/' },
+    twitter: { card: 'summary_large_image', title, description },
   }
 }
 
